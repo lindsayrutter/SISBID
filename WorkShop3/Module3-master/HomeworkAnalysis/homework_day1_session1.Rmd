@@ -1,0 +1,43 @@
+---
+title: "Homework1.1"
+author: "Lindsay Rutter"
+date: "7/17/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r readData}
+library(stats)
+library(broom)
+library(readr)
+library(dplyr)
+library(ggplot2)
+
+dat <- read_csv("../priemelDataReconstruction.csv")
+dat <- as.data.frame(dat)
+colnames(dat) <- c("serum", "ovbv")
+```
+
+```{r plotOVBV}
+dat %>% ggplot(aes(x=serum, y=ovbv)) + geom_point()
+```
+
+As the serum level increases, the OB/BV values decrease. However, there are very low OB/BV values for low serum levels as well.
+
+Next, I fit a logisitic regression to determine the probability that requirements are met (OV/BV is 2 or less) as a function of serum level.
+
+```{r logRegression}
+glm(ovbv~serum, data=dat)
+```
+
+After that, I restrict the set of patients to exclude those with serum values far from the target level (e.g., 10 nmol/L or less), and reanalyze.
+
+```{r logRegressionLess10}
+dat10 <- dat %>% filter(serum<10)
+results <- glm(ovbv~serum, data=dat10)
+```
+
+This model gives us an intercept of `r tidy(results)$estimate[1]` and a slope of `r tidy(results)$estimate[2]`.

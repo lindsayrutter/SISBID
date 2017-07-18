@@ -1,0 +1,52 @@
+---
+title: "R Markdown Live"
+author: "Lindsay Rutter"
+date: "7/17/2017"
+output:
+  pdf_document:
+    toc: yes
+  html_document:
+    code_folding: hide
+    toc: yes
+    toc_float: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(warning=FALSE, message=FALSE, fig.height=6, fig.width=12)
+```
+
+I'm going to load the "babynames" package.
+
+```{r load_babynames, warning=FALSE, message=FALSE, echo=FALSE, results="hide"}
+library(babynames)
+library(dplyr)
+library(ggplot2)
+```
+
+## Selecting rows
+
+Here is the first few rows of baby names. These data have `r nrow(babynames)`.
+
+```{r head_babynames}
+head(babynames)
+```
+
+<!--
+Here's a comment from HTML that gets hidden
+-->
+
+I am now getting names "Karl" and "Carl".
+
+```{r grab_ckarl_rows}
+karl <- babynames %>% filter(name=="Karl" | name =="Carl")
+```
+
+Above included `r nrow(karl)` people.
+
+## Making plots
+
+And now I am plotting my findings.
+
+```{r plot_karl, fig.height=8}
+karl %>% ggplot(aes(x=year, y=prop, color=name, linetype=sex)) + geom_line()
+```

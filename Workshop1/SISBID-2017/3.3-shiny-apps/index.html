@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Shiny app examples</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Di Cook (dicook@monash.edu, @visnut)   Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)" />
+    <link href="index_files/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <link rel="stylesheet" href="myremark.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Shiny app examples
+## SISBID 2017 <br> <a href="https://github.com/SISBID/Module2" class="uri">https://github.com/SISBID/Module2</a>
+### Di Cook (<a href="mailto:dicook@monash.edu">dicook@monash.edu</a>, <span class="citation">@visnut</span>) <br> Heike Hofmann (<a href="mailto:heike.hofmann@gmail.com">heike.hofmann@gmail.com</a>, <span class="citation">@heike_hh</span>)
+### 07/12-14/2017
+
+---
+
+
+
+
+# A shiny app for exploring soybean milestone cultivars
+
+- Explore genetic signatures, genealogy and phenotypic changes of soybean breeding
+- Ultimate task is to understand how the genome changed with the breeding of lines, and how this affected other traits
+
+---
+# Data: three sources
+
+- Next-generation sequencing DNA-seq on 79 lines: DNA sequencing libraries were prepared using TruSeq DNA sample prep and NuGENs unamplified prep kits (Illumina Inc., San Diego, CA and NuGEN Technologies Inc., San Carlos, CA). 
+- Field yield trials: 30/79 + 138 ancestral lines
+- Breeding literature, what lines were bred to produce what line
+
+---
+# Three apps
+
+- Copy number variation (CNV): 2Gb of analysis files, annotations
+- SNPs: 12Gb of data, 20mill SNPs, 1mil locations, 79 lines
+- Genealogy: Shows the parent to child lineage
+
+---
+# CNV app
+
+- Seven tabs containing different functionality
+- Four of the tabs, CNV Location, Copy Number, "Search CNVs by Location", and CNV List, primarily concerned with exploring the identified copy number variants
+- The other three tabs, Phenotype Data, Genealogy, and Methodology provide additional information about the soybean cultivars and the experimental methodology
+- App written by Dr Susan Vanderplas
+
+---
+# Software
+
+- shiny: provides the infrastructure, web interface
+- ggplot2: static plots
+- animint: interactive plots
+
+---
+# Main page
+
+![](CNV1.png)
+
+---
+# 
+
+![](CNV2.png)
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+What does copy number variation mean?
+
+---
+# Barcode plots
+
+![](CNV3.png)
+
+---
+# Field trial data
+
+![](CNV4.png)
+
+---
+# Lineage
+
+![](CNV5.png)
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+Open up the copy number variation (CNV) app on your computer [http://shiny.soybase.org/CNV/](http://shiny.soybase.org/CNV/)
+
+or 
+
+[http://srvanderplas.com/Shiny/SoybeanApp/CNV/](http://srvanderplas.com/Shiny/SoybeanApp/CNV/)
+
+(It might be best to share one computer between three or four people, so that the servers don't get overloaded.)
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+- Has yield increased over the years?
+- What is the relationship between yield and protein?
+- What is the name of the line that is a recent development, and was sequenced in the study? 
+- Find a line who's yield is lower than both parents. 
+
+(Hint: Use the `Field Trials` tab.)
+
+
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+- Is `Conrad` a descendant of `Essex`?
+- Who are the grandparents of `Essex`?
+- How is `Illini` related to `Lawrence`?
+
+(Hint: Use the `Genealogy` tab.)
+
+
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+Find some locations on the genome that Lawrence might have inherited from Illini. 
+
+(Hint: Use the `Barcode plots`.)
+
+
+
+---
+# SNP app
+
+- Five tabs containing different functionality
+- Overview, SNP locations, search by id, SNP browser, SNP distance and the Kevin Bacon distance
+- App written by Susan Vanderplas
+
+---
+# Browse SNPs
+
+![](SNP1.png)
+
+---
+
+![](SNP2.png)
+
+---
+
+![](SNP3.png)
+
+---
+
+![](SNP4.png)
+
+---
+# Quick overview of three other shiny apps
+
+- Exploring the answer space for a theoretical question: https://erichare.shinyapps.io/pelica/
+- Getting an image and the code for a logo plot:  https://erichare.shinyapps.io/gglogo/
+- Finding a statistical answer to a matching problem: http://erichare.shinyapps.io/x3prplus 
+
+- Author: Eric Hare
+
+---
+# PeLiCa - peptide library calculator
+
+https://erichare.shinyapps.io/pelica/
+
+- interactive tool to help plan an experiment 
+- What is the baseline probability that a peptide of length p is included in a synthetic library of size N (really large)?
+- What role does peptide encoding play?
+
+---
+# Expected Coverage 
+
+&lt;img width="950px" src="pelica-1.png"&gt;
+
+---
+# Creating a logo plot
+
+https://erichare.shinyapps.io/gglogo/
+
+&lt;img width="950px" src="gglogo-1.png"&gt;
+
+---
+# Matching Bullets
+
+https://erichare.shinyapps.io/x3prplus/
+
+&lt;img width="650px" src="matching-1.png"&gt;
+
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+Pick one of the three shiny apps and explore it for yourself:
+
+- peptide libraries: http://erichare.shinyapps.io/pelica
+- logo plot: http://erichare.shinyapps.io/gglogo
+- bullet matching: http://erichare.shinyapps.io/x3prplus 
+
+
+---
+# Resources
+
+- [Cheat sheet](https://www.rstudio.com/wp-content/uploads/2015/08/ggplot2-cheatsheet.pdf)
+- [ggplot2: Elegant Graphics for Data Analysis, Hadley Wickham](http://ggplot2.org/book/), [web site](http://ggplot2.org)
+- [R Graphics Cookbook, Winston Chang](http://www.cookbook-r.com/Graphs/)
+- [Q/A site: http://stackoverflow.com](http://stackoverflow.com)
+- [Dynamic Documents with R and knitr, Yihui Xie, ](http://yihui.name/knitr/)
+- [Naomi Robbins, Creating More Effective Graphs](http://www.nbr-graphs.com)
+- [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

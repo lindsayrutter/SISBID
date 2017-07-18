@@ -1,0 +1,13 @@
+---
+title: "Basic description"
+author: "Lindsay Rutter"
+date: "7/18/2017"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Here's some stuff to start things off.
+

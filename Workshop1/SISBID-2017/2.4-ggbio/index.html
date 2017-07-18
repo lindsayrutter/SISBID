@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Biological data plots</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Di Cook (dicook@monash.edu, @visnut)   Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)" />
+    <link href="index_files/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <link rel="stylesheet" href="myremark.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Biological data plots
+## SISBID 2017 <br> <a href="https://github.com/SISBID/Module2" class="uri">https://github.com/SISBID/Module2</a>
+### Di Cook (<a href="mailto:dicook@monash.edu">dicook@monash.edu</a>, <span class="citation">@visnut</span>) <br> Heike Hofmann (<a href="mailto:heike.hofmann@gmail.com">heike.hofmann@gmail.com</a>, <span class="citation">@heike_hh</span>)
+### 07/12-14/2017
+
+---
+
+
+
+
+
+
+
+# GGenealogy
+
+- Genealogy is the study of parent-child relationships.
+- Comparative geneticists, computational biologists, and bioinformaticians commonly use genealogical tools to better understand the histories of novel traits arising across biological lineages, e.g. modifications in crops could include an increase in protein yield.
+- R packages: `ggenealogy`, `pedigree`, `kinship2`
+
+---
+# Package comparison
+
+- `pedigree`: standardized chart used to study human family lines (Coster, 2013)
+- `kinship2`: basic pedigree charts (Therneau, Daniel, Sinnwell, Atkinson, 2015)
+- `ggenealogy`: focused on agronomic genealogical lineages (Rutter, Vanderplas, Cook, Graham 2016)
+
+---
+# Soybeans
+
+
+```r
+data("sbGeneal")
+str(sbGeneal)
+'data.frame':	390 obs. of  5 variables:
+ $ child      : chr  "5601T" "Adams" "A.K." "A.K. (Harrow)" ...
+ $ devYear    : num  1981 1948 1910 1912 1968 ...
+ $ yield      : int  NA 2734 NA 2665 NA 2981 2887 2817 NA NA ...
+ $ yearImputed: logi  TRUE FALSE TRUE FALSE FALSE FALSE ...
+ $ parent     : chr  "Hutcheson" "Dunfield" NA "A.K." ...
+```
+
+---
+# Input format
+
+- data frame structure with at least two columns
+- One column must be labeled "child", and be `character`
+- other column must be labeled "parent"" and each case in that column must either be of type character, or a missing denoted by NA, or "".
+- additional information can be useful, e.g. `year`, `yield`
+
+---
+# Conversion to graph structure
+
+Needed for most other functions
+
+
+```r
+ig &lt;- dfToIG(sbGeneal)
+ig
+IGRAPH UNW- 230 340 -- 
++ attr: name (v/c), weight (e/n)
++ edges (vertex names):
+ [1] 5601T    --Hutcheson        Adams    --Dunfield        
+ [3] A.K.     --A.K. (Harrow)    Altona   --Flambeau        
+ [5] Amcor    --Amsoy 71         Adams    --Amsoy           
+ [7] Amsoy 71 --C1253            Anderson --Lincoln         
+ [9] Bay      --York             Bedford  --Forrest         
+[11] Beeson   --Kent             Blackhawk--Richland        
+[13] Bonus    --C1266R           Bradley  --J74-39          
+[15] Bragg    --Jackson          Bragg    --Bragg x D60-7965
++ ... omitted several edges
+```
+
+---
+# Basic statistics
+
+
+```r
+getBasicStatistics(ig)
+$isConnected
+[1] FALSE
+
+$numComponents
+[1] 11
+
+$avePathLength
+[1] 5.333746
+
+$graphDiameter
+[1] 13
+
+$numNodes
+[1] 230
+
+$numEdges
+[1] 340
+
+$logN
+[1] 5.438079
+```
+
+---
+# Functions
+
+- shortest path
+- plotting ancestors and descendants
+- plotting distance matrix
+- using interaction
+
+---
+# Shortest path
+
+
+```r
+pathTN &lt;- getPath("Brim", "Bedford", ig, sbGeneal, "devYear")
+pathTN
+$pathVertices
+[1] "Brim"    "Young"   "Essex"   "T80-69"  "J74-40"  "Forrest" "Bedford"
+
+$variableVertices
+[1] "1977" "1968" "1962" "1975" "1975" "1973" "1978"
+plotPath(pathTN, sbGeneal, "devYear")
+```
+
+---
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+We can plot the path on the entire network, but it is messy
+
+
+```r
+sb &lt;- sbGeneal[complete.cases(sbGeneal[1:3]),]
+ig &lt;- dfToIG(sb)
+pathCL &lt;- getPath("Clark", "Lawrence", ig, sb, "yield")
+plotPathOnAll(pathCL, sb, ig, "yield", "devYear") + 
+  ggplot2::xlab("Yield") + ggplot2::ylab("Year")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+- Read the Statistics genealogy data (`statGeneal`)
+- Plot the shortest path between `Irène Gijbels` and `Gerda Claeskens`
+- BONUS: Who are these statisticians? What do they work on?
+
+
+
+
+---
+# Plotting ancestors and descendants
+
+This allows focusing on individuals, and examine where they came from and what was produced. 
+
+
+```r
+plotAncDes("Lee", sbGeneal, mAnc = 6, mDes = 6, vCol = "blue")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+How many repeated lines can you see in the descendants?
+
+---
+# Repeats
+
+- Some varieties are repeated in the plot, to alleviate ambiguities in the soybean breeding knowledge
+- e.g., the variety 5601T is represented four times - once as a third generation descendant of Lee, once as a fourth generation descendant of Lee, and twice as a fifth generation descendant of Lee.
+- Because, there are multiple paths between Lee and 5601T
+
+---
+
+![](repeats.png)
+
+---
+class: inverse middle 
+# Your turn
+
+- For the statistics genealogy find the ancestors and descendants of `Irène Gijbels`
+
+
+
+---
+# Another fun example
+
+Have a look at Hadley's academic family tree:
+
+```r
+hw &lt;- read_csv("../data/hw-gen.csv")
+names(hw)[2:3] &lt;- c("parent", "child")
+plotAncDes("Hadley Alexander Wickham", hw, mAnc=6, mDes=1)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# You are not in `statGeneal`?
+
+You can use the `mathGen` package (github repo: `heike/mathGen`) to scrape the MathGenealogy project (remember to scrape responsibly!).
+
+
+```r
+# devtools::install_github("heike/mathGen")
+library(mathGen) 
+hw &lt;- ancestry(id = 145799, steps = 4) # look up ID from MathGenealogy
+hw &lt;- plyr::rbind.fill(data.frame(advisorMGID=145799, advisorName="Hadley Alexander Wickham"), hw)
+names(hw)[2:3] &lt;- c("parent", "child")
+hw$parent &lt;- as.character(hw$parent)
+```
+
+```r
+head(hw)
+# A tibble: 6 x 8
+  advisorMGID                   parent                    child   mgID
+        &lt;int&gt;                    &lt;chr&gt;                    &lt;chr&gt;  &lt;int&gt;
+1      145799 Hadley Alexander Wickham                     &lt;NA&gt;     NA
+2       18734        Dianne Helen Cook Hadley Alexander Wickham 145799
+3       46503           Heike  Hofmann Hadley Alexander Wickham 145799
+4       18641            Andreas  Buja        Dianne Helen Cook  18734
+5       23178 Javier Fernandez Cabrera        Dianne Helen Cook  18734
+6       18363         Peter Jost Huber            Andreas  Buja  18641
+# ... with 4 more variables: School &lt;chr&gt;, Thesistitle &lt;chr&gt;,
+#   Degree &lt;chr&gt;, Year &lt;int&gt;
+```
+
+---
+# Plotting distance matrix
+
+a.k.a the `Kevin Bacon distance`
+
+
+```r
+varieties &lt;- c("Brim", "Bedford", "Calland", "Dillon", "Hood", "Narow",
+  "Pella", "Tokyo", "Young", "Zane")
+p &lt;- plotDegMatrix(varieties, ig, sbGeneal)
+p + ggplot2::scale_fill_continuous(low = "white", high = "darkgreen")
+```
+
+---
+#
+
+&lt;img src="index_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+Plot the distance matrix for these statisticians: `Thomas Lumley`, `Rob Hyndman`, `Grace Wahba`, `Gordon Smyth`, `Elizaveta Levina`, `David Cox`, `Irène Gijbels`, `Gerda Claeskens`
+
+
+
+---
+# Interaction
+
+- When paths are plotted on the entire network most of the information gets lost. 
+- This can be alleviated by making the plot interactive, so that node labels appear on mouse over.
+- This is facilitated with the package `plotly`.
+- Demo
+
+
+```r
+plotPathOnAll(pathTN, sbGeneal, sbIG, "devYear",
+              pathEdgeCol = "seagreen2", nodeSize = 1, 
+              pathNodeSize = 3,
+   animate = TRUE)
+```
+
+---
+# What is ggbio?
+
+This is a package originally developed by Tengfei Yin and Michael Lawrence building on ggplot2, making it easier to produce some standard genomic plots. 
+
+- manhattan plot
+- ideogram
+- tracks
+- circular layout
+
+---
+# Manhattan plot
+
+- A Manhattan plot is special scatter plot used to visualize data with a large number of data points, often with some high-magnitude values, along a genomic reference like chromosome number
+- `plotGrandLinear` function
+
+---
+
+
+```r
+snp &lt;- read.table(system.file("extdata", "plink.assoc.sub.txt", 
+    package = "biovizBase"), header = TRUE)
+gr.snp &lt;- transformDfToGr(snp, seqnames = "CHR", start = "BP", 
+    width = 1) 
+head(gr.snp)
+GRanges object with 6 ranges and 10 metadata columns:
+      seqnames                 ranges strand |       CHR        SNP
+         &lt;Rle&gt;              &lt;IRanges&gt;  &lt;Rle&gt; | &lt;integer&gt;   &lt;factor&gt;
+  [1]        4 [ 10794096,  10794099]      * |         4  rs9291494
+  [2]       14 [ 55853742,  55853755]      * |        14  rs1152481
+  [3]        6 [ 55188853,  55188858]      * |         6  rs3134708
+  [4]       17 [  4146033,   4146049]      * |        17  rs2325988
+  [5]       19 [ 46089501,  46089519]      * |        19  rs8103444
+  [6]        1 [107051695, 107051695]      * |         1 rs12072065
+             BP       A1       F_A       F_U       A2     CHISQ         P
+      &lt;integer&gt; &lt;factor&gt; &lt;numeric&gt; &lt;numeric&gt; &lt;factor&gt; &lt;numeric&gt; &lt;numeric&gt;
+  [1]  10794096        G    0.3061    0.1341        A    7.5070  0.006147
+  [2]  55853742        G    0.3542    0.2805        A    1.1030  0.293600
+  [3]  55188853        C    0.2500    0.2875        A    0.3135  0.575500
+  [4]   4146033        G    0.2551    0.2317        A    0.1323  0.716100
+  [5]  46089501        C    0.3980    0.2927        A    2.1750  0.140300
+  [6] 107051695        0    0.0000    0.0000        C      &lt;NA&gt;      &lt;NA&gt;
+             OR
+      &lt;numeric&gt;
+  [1]    2.8480
+  [2]    1.4070
+  [3]    0.8261
+  [4]    1.1360
+  [5]    1.5970
+  [6]      &lt;NA&gt;
+  -------
+  seqinfo: 22 sequences from an unspecified genome; no seqlengths
+```
+
+---
+
+
+```r
+gr.snp &lt;- keepSeqlevels(gr.snp, as.character(1:22))
+data(ideoCyto, package = "biovizBase")
+seqlengths(gr.snp) &lt;- as.numeric(seqlengths(ideoCyto$hg18)[1:22])
+gr.snp &lt;- gr.snp[!is.na(gr.snp$P)]
+values(gr.snp)$pvalue &lt;- -log10(values(gr.snp)$P)
+gro &lt;- GRanges(c("1", "11"), IRanges(c(100, 2e6), width = 5e7))
+names(gro) &lt;- c("group1", "group2")
+#plotGrandLinear(gr.snp, aes(y = pvalue))
+df &lt;- data.frame(gr.snp@elementMetadata@listData)
+ggplot(df, aes(x=CHR, y=pvalue, colour=CHR)) +
+  geom_jitter(width=0.2, height=0) + 
+  scale_color_viridis() +
+  xlab("") + ylab("Neg log p-value") +
+  theme(legend.position="none")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-20-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+Change the Manhattan plot to have
+- Each chromosome is labelled on the x axis
+- A line corresponding to 3 is drawn
+- SNP's with higher p-values are labelled
+
+---
+# Ideogram
+
+This is a plot of a single chromosome with cytoband.
+
+
+```r
+p.ideo &lt;- Ideogram(genome = "hg19")
+p.ideo
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+```r
+Ideogram(genome = "hg19", xlabel = TRUE)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-22-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Tracks
+
+Lining up multiple plots along the chromosome is an important part of plotting genomic data
+
+
+```r
+# biocLite("Homo.sapiens")
+library(Homo.sapiens)
+class(Homo.sapiens)
+[1] "OrganismDb"
+attr(,"package")
+[1] "OrganismDbi"
+data(genesymbol, package = "biovizBase")
+wh &lt;- genesymbol[c("BRCA1", "NBR1")]
+#wh &lt;- range(wh, ignore.strand = TRUE)
+```
+
+---
+# Gene model
+
+
+```r
+p.txdb &lt;- autoplot(Homo.sapiens, which = wh)
+p.txdb
+```
+
+---
+
+
+```r
+autoplot(Homo.sapiens, which = wh, gap.geom = "chevron")
+```
+
+---
+# Base locations
+
+
+```r
+library(BSgenome.Hsapiens.UCSC.hg19)
+bg &lt;- BSgenome.Hsapiens.UCSC.hg19
+p.bg &lt;- autoplot(bg, which = wh)
+
+# no geom
+#p.bg
+
+# segment
+#p.bg + zoom(1/100)
+# rectangle
+#p.bg + zoom(1/1000)
+# text
+p.bg + zoom(1/2500)
+```
+
+---
+
+
+
+---
+class: inverse middle 
+# Your turn
+
+What is plotted at `zoom(1/100)` resolution?
+
+---
+# Base locations
+
+
+```r
+bg &lt;- BSgenome.Hsapiens.UCSC.hg19
+# force to use geom segment at this level
+autoplot(bg, which = resize(wh, width = width(wh)/2000), geom = "segment")
+```
+
+---
+# Plot coverage
+
+
+```r
+fl.bam &lt;- system.file("extdata", "wg-brca1.sorted.bam", package = "biovizBase")
+wh &lt;- keepSeqlevels(wh, "chr17")
+autoplot(fl.bam, which = wh)
+```
+
+---
+# Plot mismatches
+
+
+```r
+bg &lt;- BSgenome.Hsapiens.UCSC.hg19
+p.mis &lt;- autoplot(fl.bam, bsgenome = bg, which = wh, stat = "mismatch")
+p.mis
+```
+
+---
+# Putting it together with tracks
+
+
+```r
+p.ideo &lt;- Ideogram(genome = "hg19")
+gr17 &lt;- GRanges("chr17", IRanges(41234415, 41234569))
+tks &lt;- tracks(p.ideo, mismatch = p.mis, ref = p.bg, gene = p.txdb,
+  heights = c(2, 3, 1, 4)) + xlim(gr17) + theme_tracks_sunset()
+tks
+```
+
+---
+
+
+
+---
+# Circular layout
+
+
+```r
+data("CRC", package = "biovizBase")
+gr.crc1 &lt;- crc.gr[values(crc.gr)$individual == "CRC-1"]
+p &lt;- ggbio() +
+    circle(gr.crc1, geom = "link", linked.to = "to.gr", 
+      aes(color = rearrangements)) +
+    circle(gr.crc1, geom = "point", aes(y = score, size = tumreads),
+      color = "red", grid = TRUE) + scale_size(range = c(1, 2.5)) +
+    circle(mut.gr, geom = "rect", color = "steelblue") +
+    circle(hg19sub, geom = "ideo", fill = "gray70") + 
+    circle(hg19sub, geom = "scale", size = 2) +
+    circle(hg19sub, geom = "text", aes(label = seqnames), 
+      vjust = -2, size = 3)
+p
+```
+
+---
+
+
+
+---
+class: inverse middle 
+# Your turn
+
+Which `circle` line of code plots the circle segments (grey filled) representing the chromosomes?
+
+---
+# Resources
+
+- [ggenealogy github repo](https://github.com/cran/ggenealogy)
+- Yin T, Cook D and Lawrence M (2012). “ggbio: an R package for extending the grammar of graphics for genomic data.” Genome Biology, 13(8), pp. R77.
+- [bioconductor page](https://bioconductor.org/packages/release/bioc/html/ggbio.html)
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

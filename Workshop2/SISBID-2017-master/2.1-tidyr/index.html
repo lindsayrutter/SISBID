@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Tidying your data</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Di Cook (dicook@monash.edu, @visnut)   Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)" />
+    <link href="index_files/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <link rel="stylesheet" href="myremark.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Tidying your data
+## SISBID 2017
+### Di Cook (<a href="mailto:dicook@monash.edu">dicook@monash.edu</a>, <span class="citation">@visnut</span>) <br> Heike Hofmann (<a href="mailto:heike.hofmann@gmail.com">heike.hofmann@gmail.com</a>, <span class="citation">@heike_hh</span>)
+### 07/12-14/2017
+
+---
+
+
+
+
+
+
+# Using `tidyr`, `dplyr`
+
+- Writing readable code using **pipes**
+- What is **tidy data**? Why do you want tidy data? Getting your data into tidy form using tidyr.
+- Reading different **data formats**
+- String operations, working with **text**
+
+---
+# The pipe operator `%&gt;%`
+
+- `x %&gt;% f(y)` is the same as `f(x, y)`
+- part of `dplyr` package
+- pipes allow the code to be *read* like a sequence of operations
+
+Example:
+
+
+```r
+student2012.sub &lt;- readRDS("../data/student_sub.rds")
+# table(student2012.sub$CNT)
+student2012.sub %&gt;% group_by(CNT) %&gt;% tally()
+# A tibble: 43 x 2
+     CNT     n
+   &lt;chr&gt; &lt;int&gt;
+ 1   ARE 11500
+ 2   AUS 14481
+ 3   AUT  4755
+ 4   BEL  8597
+ 5   BGR  5282
+ 6   BRA  5506
+ 7   CAN 21544
+ 8   CHL  6856
+ 9   COL  9073
+10   CZE  5327
+# ... with 33 more rows
+```
+
+---
+# What is **tidy data**? 
+
+- Why do we want tidy data? 
+- Couple of exercises to look closer at what we find in practice 
+
+
+---
+class: inverse middle 
+# Your turn 1
+
+What are the variables?
+
+
+```
+# A tibble: 6 x 4
+                      Inst AvNumPubs AvNumCits PctCompletion
+                     &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt;
+1 ARIZONA STATE UNIVERSITY      0.90      1.57          31.7
+2        AUBURN UNIVERSITY      0.79      0.64          44.4
+3           BOSTON COLLEGE      0.51      1.03          46.8
+4        BOSTON UNIVERSITY      0.49      2.66          34.2
+5      BRANDEIS UNIVERSITY      0.30      3.03          48.7
+6         BROWN UNIVERSITY      0.84      2.31          54.6
+```
+
+
+
+---
+class: inverse middle 
+# Your turn 2
+
+What's in the column names of this data? What are the experimental units? What are the measured variables?
+
+
+```
+# A tibble: 3 x 12
+      id `WI-6.R1` `WI-6.R2` `WI-6.R4` `WM-6.R1` `WM-6.R2` `WI-12.R1`
+   &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 Gene 1  2.182424 2.2042219  4.195636 2.6273345  5.063641   4.540002
+2 Gene 2  1.464224 0.5854472  1.859238 0.5152242  2.882808   1.364037
+3 Gene 3  2.031792 0.8701078  3.281983 0.5330452  4.627315   2.182192
+# ... with 5 more variables: `WI-12.R2` &lt;dbl&gt;, `WI-12.R4` &lt;dbl&gt;,
+#   `WM-12.R1` &lt;dbl&gt;, `WM-12.R2` &lt;dbl&gt;, `WM-12.R4` &lt;dbl&gt;
+```
+
+
+
+---
+class: inverse middle 
+# Your turn 3
+
+What are the variables? What are the records?
+
+
+```
+           V1   V2 V3   V4  V5  V9 V13 V17 V21 V25 V29 V33 V37 V41 V45 V49
+1 ASN00086282 1970  7 TMAX 141 124 113 123 148 149 139 153 123 108 119 112
+2 ASN00086282 1970  7 TMIN  80  63  36  57  69  47  84  78  49  42  48  56
+3 ASN00086282 1970  7 PRCP   3  30   0   0  36   3   0   0  10  23   3   0
+4 ASN00086282 1970  8 TMAX 145 128 150 122 109 112 116 142 166 127 117 127
+5 ASN00086282 1970  8 TMIN  50  61  75  67  41  51  48  -7  56  62  47  33
+6 ASN00086282 1970  8 PRCP   0  66   0  53  13   3   8   0   0   0   3   5
+  V53 V57 V61 V65 V69 V73 V77 V81 V85 V89 V93 V97
+1 126 112 115 133 134 126 104 143 141 134 117 142
+2  51  36  44  39  40  58  15  33  51  74  39  66
+3   5   0   0   0   0   0   8   0  18   0   0   0
+4 159 143 114  65 113 125 129 147 161 168 178 161
+5  67  84  11  41  18  50  22  28  74  94  73  88
+6   0   0  64   3  99  36   8   0   0   0   8  36
+```
+
+
+
+---
+class: inverse middle 
+# Your turn 4
+
+What are the variables? What are the experimental units?
+
+
+```
+# A tibble: 6 x 22
+   iso2  year  m_04 m_514 m_014 m_1524 m_2534 m_3544 m_4554 m_5564  m_65
+  &lt;chr&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt; &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt;  &lt;int&gt; &lt;int&gt;
+1    ZW  2003    NA    NA   133    874   3048   2228    981    367   205
+2    ZW  2004    NA    NA   187    833   2908   2298   1056    366   198
+3    ZW  2005    NA    NA   210    837   2264   1855    762    295   656
+4    ZW  2006    NA    NA   215    736   2391   1939    896    348   199
+5    ZW  2007     6   132   138    500   3693      0    716    292   153
+6    ZW  2008    NA    NA   127    614      0   3316    704    263   185
+# ... with 11 more variables: m_u &lt;int&gt;, f_04 &lt;int&gt;, f_514 &lt;int&gt;,
+#   f_014 &lt;int&gt;, f_1524 &lt;int&gt;, f_2534 &lt;int&gt;, f_3544 &lt;int&gt;, f_4554 &lt;int&gt;,
+#   f_5564 &lt;int&gt;, f_65 &lt;int&gt;, f_u &lt;int&gt;
+```
+
+---
+class: inverse middle 
+# Your turn 5 
+
+What are the variables? What are the experimental units?
+
+
+```
+            religion &lt;$10k $10-20k $20-30k $30-40k
+1           Agnostic    27      34      60      81
+2            Atheist    12      27      37      52
+3           Buddhist    27      21      30      34
+4           Catholic   418     617     732     670
+5 Don’t know/refused    15      14      15      11
+```
+
+---
+class: inverse middle 
+# Your turn 6
+
+10 week sensory experiment, 12 individuals assessed taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do they taste?), fried in one of 3 different oils, replicated twice. First few rows:
+
+
+```
+   time treatment subject rep potato buttery grassy rancid painty
+61    1         1       3   1    2.9     0.0    0.0    0.0    5.5
+25    1         1       3   2   14.0     0.0    0.0    1.1    0.0
+62    1         1      10   1   11.0     6.4    0.0    0.0    0.0
+26    1         1      10   2    9.9     5.9    2.9    2.2    0.0
+```
+
+What is the experimental unit? What are the factors of the experiment? What was measured? What do you want to know?
+
+---
+# Messy Data Patterns
+
+There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns:
+
+- Column headers are values, not variable names
+- Variables are stored in both rows and columns, contingency table format
+- One type of experimental unit stored in multiple tables
+- Dates in many different formats
+
+---
+# What is Tidy Data?
+
+- Each observation forms a row
+- Each variable forms a column
+- Data is contained in a single table
+- Long form makes it easier to reshape in many different ways
+- Wide form is common for analysis
+
+---
+
+![](lego.png)
+
+---
+
+![](playmobile.png)
+
+---
+# Tidy Verbs
+
+- `gather`: specify the **keys** (identifiers) and the **values** (measures) to make long form (used to be called melting)
+- `spread`: variables in columns (used to be called casting)
+- `nest`/`unnest`: working with list variables
+- `separate`/`unite`: split and combine columns
+
+---
+# French Fries 
+
+10 week sensory experiment, 12 individuals assessed taste of french fries on several scales (how potato-y, buttery, grassy, rancid, paint-y do they taste?), fried in one of 3 different oils, replicated twice. First few rows:
+
+
+```
+   time treatment subject rep potato buttery grassy rancid painty
+61    1         1       3   1    2.9     0.0    0.0    0.0    5.5
+25    1         1       3   2   14.0     0.0    0.0    1.1    0.0
+62    1         1      10   1   11.0     6.4    0.0    0.0    0.0
+26    1         1      10   2    9.9     5.9    2.9    2.2    0.0
+63    1         1      15   1    1.2     0.1    0.0    1.1    5.1
+27    1         1      15   2    8.8     3.0    3.6    1.5    2.3
+```
+
+---
+# What Would We Like to Know?
+
+- Is the design complete?
+- Are replicates like each other?
+- How do the ratings on the different scales differ?
+- Are raters giving different scores on average?
+- Do ratings change over the weeks?
+
+Each of these questions involves different summaries of the data.
+
+---
+# Gathering
+
+When gathering, you need to specify the **keys** (identifiers) and the **values** (measures).
+
+- Keys/Identifiers:
+  - Identify a record (must be unique)
+  - Example: Indices on an random variable
+  - Fixed by design of experiment (known in advance)
+  - May be single or composite (may have one or more variables)
+
+- Values/Measures:
+  - Collected during the experiment (not known in advance)
+  - Usually numeric quantities
+
+---
+# Gathering the French Fries
+
+
+```r
+ff_long &lt;- gather(french_fries, key = variable, value = 
+                    rating, potato:painty)
+head(ff_long)
+  time treatment subject rep variable rating
+1    1         1       3   1   potato    2.9
+2    1         1       3   2   potato   14.0
+3    1         1      10   1   potato   11.0
+4    1         1      10   2   potato    9.9
+5    1         1      15   1   potato    1.2
+6    1         1      15   2   potato    8.8
+```
+
+---
+# Long to Wide
+
+In certain applications, we may wish to take a long dataset and convert it to a wide dataset (perhaps displaying in a table).
+
+This is called "spreading" the data.
+
+---
+# Spread
+
+We use the **spread** function from `tidyr` to do this:
+
+
+```r
+french_fries_wide &lt;- spread(ff_long, key = variable, 
+                            value = rating)
+
+head(french_fries_wide)
+  time treatment subject rep buttery grassy painty potato rancid
+1    1         1       3   1     0.0    0.0    5.5    2.9    0.0
+2    1         1       3   2     0.0    0.0    0.0   14.0    1.1
+3    1         1      10   1     6.4    0.0    0.0   11.0    0.0
+4    1         1      10   2     5.9    2.9    0.0    9.9    2.2
+5    1         1      15   1     0.1    0.0    5.1    1.2    1.1
+6    1         1      15   2     3.0    3.6    2.3    8.8    1.5
+```
+
+---
+# Answer some Questions
+
+- Easiest question to start is whether the ratings are similar on the different scales, potato'y, buttery, grassy, rancid and painty. 
+
+- We need to gather the data into long form, and make plots facetted by the scale. 
+
+---
+# Ratings on the Different Scales
+
+
+```r
+ff.m &lt;- french_fries %&gt;% 
+  gather(type, rating, -subject, -time, -treatment, -rep)
+head(ff.m)
+  time treatment subject rep   type rating
+1    1         1       3   1 potato    2.9
+2    1         1       3   2 potato   14.0
+3    1         1      10   1 potato   11.0
+4    1         1      10   2 potato    9.9
+5    1         1      15   1 potato    1.2
+6    1         1      15   2 potato    8.8
+```
+
+--
+
+
+```r
+ggplot(data=ff.m, aes(x=rating)) + geom_histogram(binwidth=2) + 
+  facet_wrap(~type, ncol=5) 
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Side-By-Side Boxplots
+
+
+```r
+ggplot(data=ff.m, aes(x=type, y=rating, fill=type)) + 
+  geom_boxplot()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-18-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# Do the Replicates Look Like Each Other?
+
+We will start to tackle this by plotting the replicates against each other using a scatterplot. 
+
+We need to gather the data into long form, and then get the replicates spread into separate columns. 
+
+---
+# Check Replicates
+
+
+```r
+head(ff.m)
+  time treatment subject rep   type rating
+1    1         1       3   1 potato    2.9
+2    1         1       3   2 potato   14.0
+3    1         1      10   1 potato   11.0
+4    1         1      10   2 potato    9.9
+5    1         1      15   1 potato    1.2
+6    1         1      15   2 potato    8.8
+```
+
+
+
+```r
+ff.s &lt;- ff.m %&gt;% spread(rep, rating)
+head(ff.s)
+  time treatment subject    type   1    2
+1    1         1       3 buttery 0.0  0.0
+2    1         1       3  grassy 0.0  0.0
+3    1         1       3  painty 5.5  0.0
+4    1         1       3  potato 2.9 14.0
+5    1         1       3  rancid 0.0  1.1
+6    1         1      10 buttery 6.4  5.9
+```
+
+---
+# Check Replicates
+
+
+```r
+ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
+  theme(aspect.ratio=1) + xlab("Rep 1") + ylab("Rep 2")
+ggplot(data=ff.s, aes(x=`1`, y=`2`)) + geom_point() +
+  theme(aspect.ratio=1) + xlab("Rep 1") + ylab("Rep 2") + 
+  scale_x_sqrt() + scale_y_sqrt()
+```
+
+![](index_files/figure-html/unnamed-chunk-21-1.png)![](index_files/figure-html/unnamed-chunk-21-2.png)
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+Make the scatterplots of reps against each other separately for scales, and treatment. 
+
+
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+Read in the billboard top 100 music data, which contains N'Sync and Backstreet Boys songs that entered the billboard charts in the year 2000
+
+
+```r
+billboard &lt;- read.csv("../data/billboard.csv")
+```
+
+What's in this data? What's X1-X76?
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+1. Use `tidyr` to convert this data into a long format appropriate for plotting a time series (date on the x axis, chart position on the y axis)
+2. Use `ggplot2` to create this time series plot:
+
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+# String Manipulation
+
+When the experimental design is packed into column names, we need to extract it, and tidy it up. 
+
+
+```r
+genes &lt;- read_csv("../data/genes.csv")
+head(genes)
+# A tibble: 3 x 12
+      id `WI-6.R1` `WI-6.R2` `WI-6.R4` `WM-6.R1` `WM-6.R2` `WI-12.R1`
+   &lt;chr&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;
+1 Gene 1  2.182424 2.2042219  4.195636 2.6273345  5.063641   4.540002
+2 Gene 2  1.464224 0.5854472  1.859238 0.5152242  2.882808   1.364037
+3 Gene 3  2.031792 0.8701078  3.281983 0.5330452  4.627315   2.182192
+# ... with 5 more variables: `WI-12.R2` &lt;dbl&gt;, `WI-12.R4` &lt;dbl&gt;,
+#   `WM-12.R1` &lt;dbl&gt;, `WM-12.R2` &lt;dbl&gt;, `WM-12.R4` &lt;dbl&gt;
+```
+
+---
+# Gather Column Names into Long Form
+
+
+```r
+gather(genes, variable, expr, -id) 
+# A tibble: 33 x 3
+       id variable      expr
+    &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;
+ 1 Gene 1  WI-6.R1 2.1824242
+ 2 Gene 2  WI-6.R1 1.4642236
+ 3 Gene 3  WI-6.R1 2.0317925
+ 4 Gene 1  WI-6.R2 2.2042219
+ 5 Gene 2  WI-6.R2 0.5854472
+ 6 Gene 3  WI-6.R2 0.8701078
+ 7 Gene 1  WI-6.R4 4.1956364
+ 8 Gene 2  WI-6.R4 1.8592378
+ 9 Gene 3  WI-6.R4 3.2819835
+10 Gene 1  WM-6.R1 2.6273345
+# ... with 23 more rows
+```
+
+---
+# Separate Columns
+
+
+```r
+genes %&gt;%
+  gather(variable, expr, -id) %&gt;%
+  separate(variable, c("trt", "leftover"), "-") 
+# A tibble: 33 x 4
+       id   trt leftover      expr
+ *  &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;     &lt;dbl&gt;
+ 1 Gene 1    WI     6.R1 2.1824242
+ 2 Gene 2    WI     6.R1 1.4642236
+ 3 Gene 3    WI     6.R1 2.0317925
+ 4 Gene 1    WI     6.R2 2.2042219
+ 5 Gene 2    WI     6.R2 0.5854472
+ 6 Gene 3    WI     6.R2 0.8701078
+ 7 Gene 1    WI     6.R4 4.1956364
+ 8 Gene 2    WI     6.R4 1.8592378
+ 9 Gene 3    WI     6.R4 3.2819835
+10 Gene 1    WM     6.R1 2.6273345
+# ... with 23 more rows
+```
+
+---
+
+
+```r
+genes %&gt;%
+  gather(variable, expr, -id) %&gt;%
+  separate(variable, c("trt", "leftover"), "-") %&gt;%
+  separate(leftover, c("time", "rep"), "\\.") 
+# A tibble: 33 x 5
+       id   trt  time   rep      expr
+ *  &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt;
+ 1 Gene 1    WI     6    R1 2.1824242
+ 2 Gene 2    WI     6    R1 1.4642236
+ 3 Gene 3    WI     6    R1 2.0317925
+ 4 Gene 1    WI     6    R2 2.2042219
+ 5 Gene 2    WI     6    R2 0.5854472
+ 6 Gene 3    WI     6    R2 0.8701078
+ 7 Gene 1    WI     6    R4 4.1956364
+ 8 Gene 2    WI     6    R4 1.8592378
+ 9 Gene 3    WI     6    R4 3.2819835
+10 Gene 1    WM     6    R1 2.6273345
+# ... with 23 more rows
+```
+
+---
+
+
+```r
+gtidy &lt;- genes %&gt;%
+  gather(variable, expr, -id) %&gt;%
+  separate(variable, c("trt", "leftover"), "-") %&gt;%
+  separate(leftover, c("time", "rep"), "\\.") %&gt;%
+  mutate(trt = sub("W", "", trt)) %&gt;%
+  mutate(rep = sub("R", "", rep))
+head(gtidy)
+# A tibble: 6 x 5
+      id   trt  time   rep      expr
+   &lt;chr&gt; &lt;chr&gt; &lt;chr&gt; &lt;chr&gt;     &lt;dbl&gt;
+1 Gene 1     I     6     1 2.1824242
+2 Gene 2     I     6     1 1.4642236
+3 Gene 3     I     6     1 2.0317925
+4 Gene 1     I     6     2 2.2042219
+5 Gene 2     I     6     2 0.5854472
+6 Gene 3     I     6     2 0.8701078
+```
+
+---
+class: inverse middle 
+# Your turn
+
+![](lorikeets.png)
+
+(1) Using the tidied dataset (`gtidy`), find the mean expression for each combination of id, trt, and time.
+(2) Use this tidied data to make this plot.
+
+&lt;img src="index_files/figure-html/unnamed-chunk-30-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Tidying model output
+
+The package `broom` gets model results into a tidy format at different levels
+
+- for each model: `broom::glance`
+- for each coefficient in the model: `broom::tidy`
+- for each value in the dataset: `broom::augment`
+
+
+```r
+ff_long &lt;- gather(french_fries, key = variable, value = 
+                    rating, potato:painty)
+ff_lm &lt;- lm(rating~variable+treatment+time+subject, 
+            data=ff_long)
+```
+
+---
+# Goodness of fit statistics: `glance`
+
+
+```r
+glance(ff_lm)
+  r.squared adj.r.squared   sigma statistic p.value df    logLik      AIC
+1 0.3995198     0.3949865 2.89966  88.13113       0 27 -8606.787 17269.57
+       BIC deviance df.residual
+1 17441.83 28957.24        3444
+```
+
+---
+# Model estimates: `tidy`
+
+
+```r
+ff_lm_tidy &lt;- tidy(ff_lm)
+glimpse(ff_lm_tidy)
+Observations: 27
+Variables: 5
+$ term      &lt;chr&gt; "(Intercept)", "variablegrassy", "variablepainty", "...
+$ estimate  &lt;dbl&gt; 1.19851228, -1.15513007, 0.70054547, 5.13321525, 2.0...
+$ std.error &lt;dbl&gt; 0.2579150, 0.1557200, 0.1557749, 0.1557200, 0.155720...
+$ statistic &lt;dbl&gt; 4.64692727, -7.41799461, 4.49716394, 32.96439433, 13...
+$ p.value   &lt;dbl&gt; 3.495385e-06, 1.489614e-13, 7.113736e-06, 2.275767e-...
+```
+
+---
+# Model diagnostics: `augment`
+
+
+```r
+ff_lm_all &lt;- augment(ff_lm)
+glimpse(ff_lm_all)
+Observations: 3,471
+Variables: 13
+$ .rownames  &lt;chr&gt; "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", ...
+$ rating     &lt;dbl&gt; 2.9, 14.0, 11.0, 9.9, 1.2, 8.8, 9.0, 8.2, 7.0, 13.0...
+$ variable   &lt;chr&gt; "potato", "potato", "potato", "potato", "potato", "...
+$ treatment  &lt;fctr&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,...
+$ time       &lt;fctr&gt; 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,...
+$ subject    &lt;fctr&gt; 3, 3, 10, 10, 15, 15, 16, 16, 19, 19, 31, 31, 51, ...
+$ .fitted    &lt;dbl&gt; 6.331728, 6.331728, 8.046235, 8.046235, 5.972622, 5...
+$ .se.fit    &lt;dbl&gt; 0.2578966, 0.2578966, 0.2523712, 0.2523712, 0.25301...
+$ .resid     &lt;dbl&gt; -3.4317275, 7.6682725, 2.9537651, 1.8537651, -4.772...
+$ .hat       &lt;dbl&gt; 0.007910376, 0.007910376, 0.007575050, 0.007575050,...
+$ .sigma     &lt;dbl&gt; 2.899486, 2.897111, 2.899641, 2.899907, 2.898931, 2...
+$ .cooksd    &lt;dbl&gt; 4.169299e-04, 2.081769e-03, 2.955862e-04, 1.164238e...
+$ .std.resid &lt;dbl&gt; -1.1882021, 2.6550643, 1.0225395, 0.6417396, -1.652...
+```
+
+---
+# Residual plot
+
+
+```r
+ggplot(ff_lm_all, aes(x=.fitted, y=.resid)) + geom_point()
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-35-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Back to autism
+
+Fit a random slopes model to the data:
+
+`$$vsae = \beta_0 + \beta_1 age2 +  b_1 childid + \varepsilon$$`
+
+
+```r
+library(lme4)
+data(autism)
+autism_keep &lt;- autism %&gt;% group_by(childid) %&gt;% 
+  tally(sort=TRUE) %&gt;% filter(n&gt;2)
+autism_sub &lt;- autism %&gt;% 
+  filter(childid %in% autism_keep$childid)
+autism_lmer &lt;- lmer(vsae ~ age2 + ( age2 - 1 | childid ), 
+                    data = autism_sub)
+```
+
+---
+class: inverse middle 
+# Your turn
+
+- Augment the autism data with the model diagnostics
+- Plot the residuals from the (a) fixed, (b) random effects
+- Color the residuals by (a) gender, (b) besttest2
+- Plot fitted values against observed values
+
+![](lorikeets.png)
+
+
+
+---
+# Resources
+
+- Data transformation [cheatsheet](https://github.com/rstudio/cheatsheets/raw/master/source/pdfs/data-transformation-cheatsheet.pdf)
+- [Wickham (2007) Reshaping data](https://www.jstatsoft.org/article/view/v021i12/v21i12.pdf)
+- [broom vignettes, David Robinson](https://cran.r-project.org/web/packages/broom/vignettes/broom.html)
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {window.dispatchEvent(new Event('resize'));});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

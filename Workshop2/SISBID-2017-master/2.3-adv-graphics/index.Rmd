@@ -1,0 +1,464 @@
+---
+title: "Advanced plots and inference"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
+output:
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      incremental: true
+---
+
+```{r echo = FALSE, warning = FALSE, message=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE, 
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+```
+
+```{r echo=FALSE}
+library(tidyverse)
+library(ggthemes)
+library(maps)
+library(ISOcodes)
+library(scales)
+library(RColorBrewer)
+library(gridExtra)
+library(HLMdiag)
+library(viridis)
+```
+
+# Tidy data and random variables
+
+- The concept of tidy data matches elementary statistics
+- Tabular form puts variables in columns and observations in rows
+- Not all tabular data is in this form
+- This is the point of tidy data
+
+$$X = \left[ \begin{array}{rrrr}
+           X_1 & X_2 & ... & X_p 
+           \end{array} \right] \\
+  = \left[ \begin{array}{rrrr}
+           X_{11} & X_{12} & ... & X_{1p} \\
+           X_{21} & X_{22} & ... & X_{2p} \\
+           \vdots & \vdots & \ddots& \vdots \\
+           X_{n1} & X_{n2} & ... & X_{np}
+           \end{array} \right]$$
+
+- $X_1 \sim N(0,1), ~~X_2 \sim exp(1) ...$
+---
+# Grammar of graphics and statistics
+
+- A statistic is a function on the values of items in a sample, e.g. for $n$ iid random variates $\bar{X}_1=\sum_{i=1}^n X_{i1}$, $s_1^2=\frac{1}{n-1}\sum_{i=1}^n(X_{i1}-\bar{X}_1)^2$
+- We study the behaviour of the statistic over all possible samples of size $n$. 
+- The grammar of graphics is the mapping of (random) variables to graphical elements, making plots of data into statistics
+
+---
+# Pipeline: Messy to tidy to plot
+
+```{r echo=TRUE}
+messy_data <- read_csv("../data/tb.csv")
+head(messy_data)
+```
+
+---
+
+```{r echo=TRUE}
+tidy_data <- messy_data %>% 
+  gather(demo, count, -year, -iso2, na.rm = TRUE) %>% 
+  separate(demo, c("gender", "age"))
+tidy_data <- tidy_data %>% 
+  filter(!(age %in% c("014", "04", "514", "u")))
+head(tidy_data)
+```
+
+---
+# 100% charts
+
+```{r fig.width=10, fig.height=3, echo=TRUE}
+tidy_data %>% 
+  filter(iso2 == "US") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity", position = "fill") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# Stacked barcharts
+
+```{r fig.width=10, fig.height=3, echo=TRUE}
+tidy_data %>% 
+  filter(iso2 == "US") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# Side-by-side barcharts
+
+```{r fig.width=10, fig.height=3, echo=TRUE}
+tidy_data %>% 
+  filter(iso2 == "US") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity", position="dodge") +
+  facet_grid(~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# facetted barcharts
+
+```{r fig.width=10, fig.height=3, echo=TRUE}
+tidy_data %>% 
+  filter(iso2 == "US") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_text(size = 14), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  )
+```
+
+---
+# Rose plot
+
+```{r fig.width=10, fig.height=3, echo=TRUE}
+tidy_data %>% 
+  filter(iso2 == "US") %>% 
+  ggplot(aes(x = year, y = count, fill = gender)) +
+  geom_bar(stat = "identity") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) + coord_polar()
+```
+
+---
+# Rainbow charts
+
+```{r fig.width=10, fig.height=3, echo=TRUE}
+tidy_data %>% 
+  filter(iso2 == "US") %>% 
+  ggplot(aes(x = 1, y = count, fill = factor(year))) +
+  geom_bar(stat = "identity", position="fill") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) 
+```
+
+---
+# Pie charts
+
+```{r fig.width=10, fig.height=3, echo=TRUE}
+tidy_data %>% 
+  filter(iso2 == "US") %>% 
+  ggplot(aes(x = 1, y = count, fill = factor(year))) +
+  geom_bar(stat = "identity", position="fill") +
+  facet_grid(gender ~ age) +
+  theme(
+    axis.text = element_blank(), 
+    strip.text = element_text(size = 16), 
+    axis.title = element_text(size = 16)
+  ) + coord_polar(theta="y")
+```
+
+---
+class: inverse middle 
+# Your turn
+
+What do you learn about tb incidence in the USA by gender and age and year from the
+- 100% charts?
+- stacked bar charts?
+- side-by-side barcharts?
+- facetted barcharts?
+
+```{r eval=FALSE, echo=FALSE}
+The US has been rocking it at reducing tb incidence, across most age groups, and gender. Different focus using the different charts:
+  - 
+  - 
+  - 
+  - 
+```
+
+---
+# Maps
+
+Make a world map, by merging iso2 with country codes to make a chloropleth
+
+```{r}
+data("ISO_3166_1")
+world_map <- map_data("world")
+tb_names <- tidy_data %>% 
+  left_join(ISO_3166_1, by=c("iso2"="Alpha_2")) %>% 
+  select(-Alpha_3, -Numeric, -Official_name, -Common_name) %>%
+  rename(region=Name) %>%
+  mutate(region=recode(region, 
+                       "United States"="USA", 
+                       "United Kingdom"="UK",
+                       "Russian Federation"="Russia"))
+tb_names_inc <- tb_names %>% 
+  group_by(region) %>%
+  nest() %>%
+  mutate(
+    model = purrr::map(data, ~ lm(count ~ year, data = .))
+) %>%
+  unnest(model %>% purrr::map(broom::tidy)) %>%
+  select(region, term, estimate) %>% 
+  spread(term, estimate)
+```
+
+---
+
+```{r}
+ggplot(tb_names_inc, aes(map_id = region)) + 
+    geom_map(aes(fill=year), map = world_map, color="grey70", size=0.3) + 
+    expand_limits(x = world_map$long, y = world_map$lat) +
+    theme_few() +
+    scale_fill_viridis("trend") + 
+    theme(legend.position = "bottom",
+         axis.ticks = element_blank(), 
+         axis.title = element_blank(), 
+         axis.text =  element_blank()) +
+    guides(fill = guide_colorbar(barwidth = 15, barheight = .5))
+```
+
+---
+# Inference
+
+- Choice of plot implicitly sets $H_0$, $H_1$
+- Generically, we are thinking  $H_0$: no pattern, $H_1$: pattern, but the choice of plot makes this much more explicit
+
+---
+# Putting the pieces together
+
+```{r}
+df <- data.frame(v1=c(rexp(20), rexp(15, 2)), 
+                 v2=c(rep("A", 20), rep("B", 15)))
+ggplot(df, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() + coord_flip()
+```
+
+---
+class: inverse middle 
+# Your turn
+
+- Question?
+- Data, variables
+- Mapping
+- Null generating mechanism
+
+--
+- Question? Is there a difference between the two groups? $H_0$: no difference, $H_1$: difference
+
+--
+- Data, variables: Two variables: v1, v2; v2 is categorical
+
+--
+- Mapping: x=V2, y=V1, colour=V1, geom=boxplot
+
+--
+- Null generating mechanism: permute the values of V1, relative to V2
+
+
+---
+# Clarity
+
+- The null hypothesis is determined based on the plot type
+- It is not based on the structure seen in a data set
+
+---
+# Lineup
+
+Embed the data plot in a field of null plots
+
+```{r eval=FALSE}
+library(nullabor)
+pos <- sample(1:20, 1)
+df_null <- lineup(null_permute('v1'), df, pos=pos)
+ggplot(df_null, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() +
+  facet_wrap(~.sample, ncol=5) + coord_flip()
+```
+
+---
+
+Which plot shows the most difference between the groups?
+
+```{r fig.height=7, fig.width=9, echo=FALSE}
+library(nullabor)
+pos <- sample(1:20, 1)
+df_null <- lineup(null_permute('v1'), df, pos=pos)
+ggplot(df_null, aes(x=v2, y=v1, fill=v2)) + 
+  geom_boxplot() +
+  facet_wrap(~.sample, ncol=5) + coord_flip()
+```
+
+---
+# Evaluation
+
+- Computing $p$-values
+- Power - signal strength
+
+---
+# p-values
+
+Suppose $x$ individuals selected the data plot from a lineup of $m$ plots, shown to $K$ independent observers, then simplistically we can think about the probability of this happening, if the data plot is from the same distribution as the null plots. This yields a binomial formula:
+
+$$P(X\geq x) = \sum_{i=x}^{K} \binom{K}{i} \left(\frac{1}{m}\right)^i\left(\frac{m-1}{m}\right)^{K-i}$$
+
+For $x=4, K=17, m=20$
+
+```{r}
+pvisual(4, 17, m=20)
+```
+
+---
+# Simulation approach
+
+- Scenario I: in each of K evaluations a different data set and a different set of (m-1) null plots is shown.
+- Scenario II: in each of K evaluations the same data set but a different set of (m-1) null plots is shown.
+- Scenario III: the same lineup, i.e. same data and same set of null plots, is shown to K different observers.
+
+---
+# Simulation
+
+Crucial idea: assign a p-value to each plot (data and null); under null hypothesis, this p-value is from U[0,1] 
+
+Scenario I:
+- for the $k$th lineup evaluation do:
+ - pick 20 $p$-values from $U[0,1]$
+ - for data plot compute 'strength' of other plots: $q = (1-p_\text{data})/\sum_j(1-p_j)$
+ - Use $q$ to determine whether data was picked in simulation: $x_k \tilde B_{1,q}$
+ - repeat above three steps $K$ times, and find the number of data picks $X = \sum_k x_k$
+- Repeat N times to get distribution of $X$
+
+---
+# Simulation
+
+
+Scenario II (same data, different nulls):
+- for the $k$th lineup evaluation pick 20 $p$-values from $U[0,1]$:
+- for data plot compute 'strength' of other plots: $q = (1-p_\text{data})/\sum_j(1-p_j)$
+- Use $q$ to determine whether data was picked in simulation: $x_k \tilde B_{1,q}$
+- find the number of data picks $X = \sum_k x_k$
+- Repeat N times to get distribution of $X$
+
+---
+# Simulation
+
+
+Scenario III (same data, same nulls):
+- for the $k$th lineup evaluation pick $p_\text{data} \sim U[0,1]$:
+ - pick 19 $p$-values from $U[0,1]$
+ - for data plot compute 'strength' of other plots: $q = (1-p_\text{data})/\sum_j(1-p_j)$
+ - simulate number of data picks $X ~ B_{K, q}$
+- Repeat N times to get distribution of $X$
+
+
+---
+# Null-generating mechanisms
+
+- Permutation: randomizing the order of one of the variables breaks association, but keeps marginal distributions the same
+- Simulation: from a given distribution, or model. Assumption is that the data comes from that model 
+
+---
+class: inverse middle 
+# Your turn
+
+For these plot descriptions, decide on:
+
+- null hypothesis
+- null generating mechanism
+
+---
+class: inverse middle 
+# Your turn
+
+```{r echo=FALSE}
+ggplot(autism, 
+       aes(x=age2+2, y=vsae, group=childid, colour=gender)) + 
+  geom_point() +
+  geom_line() + xlim(c(0, 15)) +
+  xlab("Age (in years)") + ylab("Vineland Socialization Age Equivalent")
+```
+
+---
+class: inverse middle 
+# Your turn
+
+```{r echo=FALSE}
+fly <- read_csv("../data/flying-etiquette.csv")
+fly$`How often do you travel by plane?` <- 
+  factor(fly$`How often do you travel by plane?`, levels=c(
+    "Never","Once a year or less","Once a month or less",
+    "A few times per month","A few times per week","Every day"))
+fly_sub <- fly %>% 
+  filter(`How often do you travel by plane?` %in% 
+       c("Once a year or less","Once a month or less")) %>%
+  filter(!is.na(`Do you ever recline your seat when you fly?`)) %>%
+  filter(!is.na(Age)) %>% filter(!is.na(Gender))
+ggplot(fly_sub, 
+       aes(x=`In general, is itrude to bring a baby on a plane?`)) + 
+  geom_bar(mapping=aes(fill=Gender), position="fill") + 
+  coord_flip() 
+```
+
+---
+class: inverse middle 
+# Your turn
+
+- For the tb data, subset to 2008
+- Decide on two possible plot designs to show the relationship between age, gender.
+- Write the code to make the plots
+- Determine an appropriate null generating mechanism to test $H_o$: no relationship between age and gender.
+- Make a lineup to for each plot design. 
+- Show the lineups to 5 other participants, for each plot design
+- Record the number of people selecting the data plot
+- Compute the power for each test, the signal strength of the design
+
+
+
+---
+# Resources
+
+- Hofmann, H., Follett, L., Majumder, M. and Cook, D. (2012) Graphical Tests for Power Comparison of Competing Designs, http://doi.ieeecomputersociety.org/10.1109/TVCG.2012.230.
+- Wickham, H., Cook, D., Hofmann, H. and Buja, A. (2010) Graphical Inference for Infovis,  http://doi.ieeecomputersociety.org/10.1109/TVCG.2010.161. 
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

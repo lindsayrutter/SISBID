@@ -1,0 +1,123 @@
+---
+title: "Building a shiny app"
+subtitle: "SISBID 2017 <br> https://github.com/SISBID/Module2"
+author: "Di Cook (dicook@monash.edu, @visnut) <br> Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)"
+date: "07/12-14/2017"
+output:
+  xaringan::moon_reader:
+    css: ["default", "myremark.css"]
+    self_contained: false
+    nature:
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+---
+
+```{r, echo = FALSE, warning = FALSE, message = FALSE}
+knitr::opts_chunk$set(
+  message = FALSE,
+  warning = FALSE,
+  collapse = TRUE,
+  comment = "#>",
+  fig.height = 4,
+  fig.width = 8,
+  fig.align = "center",
+  cache = FALSE
+)
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+library(lubridate)
+library(scales)
+library(readr)
+library(ggmap)
+library(HLMdiag)
+library(RColorBrewer)
+library(gridExtra)
+```
+
+class: inverse middle 
+# Your turn
+
+- Sketch out an app that you would like to produce in this last session!
+- What is the purpose of the app?
+- What do you want to display? Plots, summary stats, model summaries, diagnostic plots, ...?
+- What UI elements to you want to include? That is, what parts of the display do you want to allow users to be able to change? What would be the defaults? Ranges?
+- Map out the steps to get it started, e.g. make it draw a scatterplot, add a slider that does a power tranformation on the x axis, ... Having this will help you build and diagnose cleanly.
+
+---
+class: inverse middle 
+# Create your first app
+
+- On the RStudio, `File` menu, `New file`, `Shiny web app` to start a new app
+- The easiest start is the `One file`, which will put both server and ui functions in the same file, `app.R`
+
+---
+# Shiny Inputs
+
+Shiny has many different input options:
+
+- `actionButton()` - creates a clickable button
+- `checkboxInput()` and `checkboxGroupInput()`
+- `dateInput()` - calendar to select a date
+- `dateRangeInput()` - select a range of dates
+- `fileInput()` - upload a file
+- `numericInput()` - input a numeric value
+- `radioButtons()` - select one or more items
+- `sliderInput()` - slide along a range of values
+- `textInput()` - input a string
+
+---
+# Shiny Outputs
+
+Shiny also has many output options:
+
+- `renderDataTable()` - outputs an interactive, sortable data table
+- `htmlOutput()` - output html elements
+- `renderPlot()` - output an R plot
+- `renderPrint()` - output text from print() in R
+- `renderTable()` - output an HTML table
+- `renderText()` - output text from R
+- `renderUI()` - output a custom part of the user interface
+- `renderImage()` - print an image to the page
+
+---
+# Other User Interface Options
+
+- `tabsetPanel()` - make multiple different output views (i.e. a plot in one tab, a data table in another)
+- `helpText()` - create additional text to help users navigate your applet
+- `submitButton()` - only update outputs when this button is clicked
+- `conditionalPanel()` - only show certain UI options when conditions are met (i.e. if a certain tab is open, or a certain input is selected)
+
+---
+class: inverse middle 
+# Your turn: Deploy your first app
+
+- Sign up for an account on [https://www.shinyapps.io/](https://www.shinyapps.io/)
+- Authenticate your account
+- You may need to do some setup in your session, e.g. install the library `rsconnect`
+
+---
+# My example
+
+- `myapp/mds-pcp/app.R` is an app that makes a t-SNE low-dimensional representation of 8D data linked to a parallel coordinate plot, so we can explore proximity in low-d space with the full data space
+- It is now deployed at https://visnut.shinyapps.io/mds-pcp/
+
+---
+# Show and tell!
+
+When you have an app deployed, share it with instructors so we can load it on the screen for you to explain.
+
+---
+# Resources
+
+- RStudio [Tutorial](http://shiny.rstudio.com/tutorial/)  
+- Deploy your app for [others to use](https://www.shinyapps.io/)
+- Shiny Setup, Showcase, and Server [setup](http://shiny.rstudio.com)  
+- Shiny Github Page [source code!](https://github.com/rstudio/shiny)  
+- Shiny Mailing [List](https://groups.google.com/forum/#!forum/shiny-discuss)  
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.

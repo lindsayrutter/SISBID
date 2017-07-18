@@ -1,0 +1,12 @@
+---
+title: "Vignette Title"
+author: "Vignette Author"
+date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette will demonstrate plotting the physiologic response data as a function of serum level. It will estimate the serum level at which we believe 97.5% of people would have their requirements met (OV/BV values below 2).

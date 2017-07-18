@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Preamble</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Di Cook (dicook@monash.edu, @visnut)   Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)" />
+    <link href="index_files/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <link rel="stylesheet" href="myremark.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Preamble
+## SISBID 2017 <br> <a href="https://github.com/SISBID/Module2" class="uri">https://github.com/SISBID/Module2</a>
+### Di Cook (<a href="mailto:dicook@monash.edu">dicook@monash.edu</a>, <span class="citation">@visnut</span>) <br> Heike Hofmann (<a href="mailto:heike.hofmann@gmail.com">heike.hofmann@gmail.com</a>, <span class="citation">@heike_hh</span>)
+### 07/12-14/2017
+
+---
+
+
+
+
+
+
+![](Hello-Di.png)
+
+---
+
+
+![](Hello-Heike.png)
+
+---
+
+
+![](Hello-Brian.png)
+
+---
+
+
+![](Hello-Jeremy.png)
+
+---
+# Getting up and running
+
+- R and RStudio
+- Projects
+- RMarkdown
+- Web site
+
+---
+# R is ...
+
+* Most commonly used data science software [kdnuggets](http://www.kdnuggets.com/2017/05/poll-analytics-data-science-machine-learning-software-leaders.html)
+* __Free__ to use, __open source__ so you can see what code is doing to your data
+* __Extensible__: Over 10000 user contributed add-on packages currently on CRAN! Bioconductor has more than 1300 packages, and many researchers provide packages through github.
+* __Powerful__
+    * With the right tools, get more work done, faster.
+* __Flexible__
+    * Not a question of _can_, but _how_.
+
+
+
+---
+# RStudio is ...
+
+[From Julie Lowndes](http://jules32.github.io/resources/RStudio_intro/):  
+
+&lt;blockquote&gt;
+&lt;b&gt;If R were an airplane, RStudio would be the airport&lt;/b&gt;, providing many, many supporting services that make it easier for you, the pilot, to take off and go to awesome places. Sure, you can fly an airplane without an airport, but having those runways and supporting infrastructure is a game-changer.
+&lt;/blockquote&gt;
+
+---
+# The RStudio IDE
+
+- Source editor: Docking station for multiple files, Useful shortcuts ("Knit"), Highlighting/Tab-completion, Code-checking (R, HTML, JS), Debugging features  
+- Console window: Highlighting/Tab-completion, Search recent commands
+- Other tabs/panes: Graphics, R documentation, Environment pane, File system navigation/access, Tools for package development, git, etc
+
+---
+class: inverse middle 
+# Your turn: Getting started
+
+- __Download a zip archive__ of the workshop files from  [github site](https://github.com/SISBID/Module2) contains all the markdown files, code files, and data for this workshop. __Unzip the file__ and __rename__ it `SISBID-2017`
+- __Create a project__ helps organise your work over these next few days called `SISBID-2017`. 
+
+![](projectname.png)
+
+
+- __Get started with RMarkdown__, by creating a new R notebook. Knit it. 
+- Now __open the file that created these slides__ `0-preamble/index.Rmd`. Navigate to the code chunks at the bottom of the file and run them.
+
+---
+# What is R Markdown?
+
+From the [R Markdown home page](http://rmarkdown.rstudio.com/):
+- R Markdown is an authoring format that enables easy creation of dynamic documents, presentations, and reports from R. 
+- It combines the core syntax of __markdown__ (an easy-to-write plain text format) __with embedded R code chunks__ that are run so their output can be included in the final document. 
+- R Markdown documents are fully reproducible (they can be automatically regenerated whenever underlying R code or data changes).
+
+---
+# Installing packages
+
+From CRAN
+
+
+```r
+install.packages("ggenealogy")
+```
+
+
+From bioconductor
+
+
+```r
+source("https://bioconductor.org/biocLite.R")
+biocLite("ggbio")
+```
+
+From github repos
+
+
+```r
+devtools::install_github("heike/gglogo")
+devtools::install_github("haleyjeppson/ggmosaic")
+```
+
+---
+# Resources
+
+
+- RStudio IDE [RStudio IDE cheat sheet](https://www.rstudio.com/wp-content/uploads/2016/01/rstudio-IDE-cheatsheet.pdf)
+- RMarkdown [cheat sheet](https://www.rstudio.com/wp-content/uploads/2016/03/rmarkdown-cheatsheet-2.0.pdf), [reference guide](https://www.rstudio.com/wp-content/uploads/2015/03/rmarkdown-reference.pdf)
+- Q/A site: [http://stackoverflow.com](http://stackoverflow.com)
+- Dynamic Documents with R and knitr [Yihui Xie](http://yihui.name/knitr/)
+
+---
+# Share and share alike
+
+Materials for this workshop build on slides provided by several people, but primarily Hadley Wickham and Carson Sievert. 
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/ 3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

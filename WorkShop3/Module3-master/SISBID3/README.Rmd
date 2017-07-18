@@ -1,0 +1,27 @@
+---
+output:
+  md_document:
+    variant: markdown_github
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, echo = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "README-"
+)
+```
+
+# SISBID3
+
+The goal of SISBID3 is to illustrate the basics of package construction.
+
+## Example
+
+This is a basic example which shows you how to solve a common problem, correcting the apprehension that package writing must be hard.
+
+```{r example}
+## basic example code
+```

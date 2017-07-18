@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Multivariate data plots</title>
+    <meta charset="utf-8">
+    <meta name="author" content="Di Cook (dicook@monash.edu, @visnut)   Heike Hofmann (heike.hofmann@gmail.com, @heike_hh)" />
+    <link href="index_files/remark-css-0.0.1/example.css" rel="stylesheet" />
+    <link rel="stylesheet" href="myremark.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Multivariate data plots
+## SISBID 2017
+### Di Cook (<a href="mailto:dicook@monash.edu">dicook@monash.edu</a>, <span class="citation">@visnut</span>) <br> Heike Hofmann (<a href="mailto:heike.hofmann@gmail.com">heike.hofmann@gmail.com</a>, <span class="citation">@heike_hh</span>)
+### 07/12-14/2017
+
+---
+
+
+
+
+
+
+class: inverse middle 
+# Your turn
+
+- What is multivariate data?
+- What makes multivariate analysis different from univariate analysis?
+
+![](lorikeets.png)
+
+
+
+---
+# Main types of plots
+
+- __pairwise plots__: explore replicates, and associations
+- __porcupine plots__: to explore treatments vs replicates
+- __parallel coordinate plots__: explore high-dimensional relationships with parallel axes
+
+---
+# GGally
+
+Classical scatterplot matrix plot. All variables are numeric, show all possible pairs.
+
+
+
+```r
+data(flea)
+ggscatmat(flea, columns = 2:4, color = "species") 
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+Generalized pairs plot, any combination of types of plots
+
+
+```r
+data(tips, package = "reshape")
+ggpairs(tips[, 1:4])
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# For biological data
+
+Brown, A. and Hudson, K. (2015) Developmental profiling of gene expression in soybean trifoliate leaves and cotyledons, [GSE61857](http://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE61857). 
+
+
+```r
+coty &lt;- read_delim("../data/GSE61857_Cotyledon_normalized.txt.gz",
+  delim="\t", col_types="cddddddddd", 
+  col_names=c("ID", "C_S1_R1", "C_S1_R2", "C_S1_R3", 
+  "C_S2_R1", "C_S2_R2", "C_S2_R3", "C_S3_R1", "C_S3_R2", "C_S3_R3"),
+  skip=1)
+coty &lt;- as.data.frame(coty)
+ggscatmat(coty, columns=2:7, alpha=0.1)
+```
+
+Normalized data for the first 6 samples are shown.
+
+---
+
+&lt;img src="index_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# What we learn
+
+- The replicates look more like each other than the developmental stage 1 vs 2. This is great data!
+- There is a lot of variability in counts across stages, would indicate a lot of gene activity. 
+- There are a few genes that have some difference from one rep to another. These could be problematic when it comes to testing. To identify these it is easier to use interactive graphics - stay tuned for this tomorrow.
+
+---
+class: inverse middle 
+# Your turn
+
+- Read the leaf data in from Brown and Hudson, and make a scatterplot matrix. (If it is too slow on your computer, sample the number of rows, to get a glimpse of the data to start.)
+- Summarise what you learn about the data in a couple of sentences
+
+![](lorikeets.png)
+
+
+
+---
+# Porcupine plots
+
+Compare treatment vs reps. Focus on reps 1, 2 from stages 1 and 2. 
+
+
+```r
+sub &lt;- coty %&gt;% select(ID, C_S1_R1, C_S1_R2, C_S2_R1, C_S2_R2)
+ggplot(sub, aes(x=C_S1_R1, xend=C_S1_R2, y=C_S2_R1, yend=C_S2_R2)) +
+  geom_segment() + 
+  theme(aspect.ratio = 1)
+```
+
+---
+
+&lt;img src="index_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+The best prospects should be shortest lines further from the `X=Y`. 
+
+---
+class: inverse middle 
+# Your turn
+
+Make a porcupine plot for the first two reps of the first two developmental stages of the leaf data.
+
+![](lorikeets.png)
+
+
+
+---
+# Parallel coordinate plots 
+
+- Parallel coordinate plots, use parallel axes, and each observation is represented by a line tracing through the axes.
+- They are useful for getting a sense of the multivariate shape of the data. You can typically read association, clustering and outliers from the plot. 
+- Can handle more variables than scatterplot matrices.
+
+---
+# Side-by-side boxplots to par coords
+
+
+```r
+ggparcoord(coty, columns=2:10, scale="globalminmax", boxplot=TRUE,
+           alphaLines=0)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+
+If the data is normalised well these should be identical boxplots, or very close to that. This is not quite what we see. 
+
+---
+# Parallel coordinates, connect the dots
+
+
+
+```r
+ggparcoord(coty, columns=2:10, scale="globalminmax", 
+           alphaLines=0.1)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+# Scaling choices
+
+- *std*: univariately, subtract mean and divide by standard deviation
+- *robust*: univariately, subtract median and divide by median absolute deviation
+- *uniminmax*: univariately, scale so the minimum of the variable is zero, and the maximum is one
+- *globalminmax*: no scaling is done; the range of the graphs is defined by the global minimum and the global maximum
+
+---
+class: inverse middle 
+# Your turn
+
+- Make parallel coordinate plots for the 9 samples of the leaf data
+- Start with side-by-side boxplots, and then generate the lines
+- Run the different scaling options to discover how they change the appearance of the plot
+
+![](lorikeets.png)
+
+
+
+---
+# Parcoords to interaction plots
+
+- Experiments are often displayed using interaction plots. 
+- These are similar to parallel coordinates, which display all the measurements, but interaction plots show one gene at a time.
+- Process the data, and then plot
+
+
+```r
+sub &lt;- coty[sample(1:nrow(coty), 6),] %&gt;% 
+  gather(sample, expr, -ID) %&gt;%
+  separate(sample, c("tissue", "stage", "rep")) %&gt;%
+  mutate(stage = as.numeric(substr(stage, 2, 2)))
+sub.m &lt;- sub %&gt;% group_by(ID, stage) %&gt;% 
+  summarise(expr = mean(expr))
+```
+
+---
+
+
+
+
+```r
+ggplot(sub, aes(x=stage, y=expr)) + geom_point(alpha=0.4) +
+  facet_wrap(~ID, ncol=3) + 
+  geom_line(data=sub.m, aes(x=stage, y=expr), colour="red")
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+Re-make the previous plot, by overlaying them in one plot, instead of faceting, and colour by the ID. 
+
+![](lorikeets.png)
+
+
+
+---
+# With significance testing
+
+
+```r
+d &lt;- DGEList(counts = coty[,-1], 
+  group = c(rep("S1", 3), rep("S2", 3), rep("S3", 3)), 
+  genes = coty[,1])
+d &lt;- calcNormFactors(d)
+d &lt;- estimateCommonDisp(d)
+d &lt;- estimateTagwiseDisp(d)
+de &lt;- glmFit(d, design=matrix(c(rep(1, 9),
+                                c(1,1,1,0,0,0,0,0,0), 
+                                c(0,0,0,1,1,1,0,0,0)),
+                              ncol=3, byrow=F))
+results &lt;- glmLRT(de)
+top10 &lt;- as.data.frame(topTags(results, n=12))
+```
+
+---
+# Plot
+
+
+```r
+sub &lt;- coty %&gt;% 
+  gather(sample, expr, -ID) %&gt;%
+  separate(sample, c("tissue", "stage", "rep")) %&gt;%
+  mutate(stage = as.numeric(substr(stage, 2, 2)))
+top10 &lt;- merge(top10, sub, by.x = "genes", by.y = "ID")
+top10.m &lt;- top10 %&gt;% group_by(genes, stage) %&gt;% 
+  summarise(expr = mean(expr))
+ggplot(top10, aes(x=stage, y=expr, colour=genes)) + 
+  geom_point(alpha=0.4) + ylim(c(0,17.5)) +
+  geom_line(data=top10.m, aes(x=stage, y=expr, colour=genes))
+```
+
+---
+
+
+&lt;img src="index_files/figure-html/unnamed-chunk-21-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+Plot the next 12 most significant genes. 
+
+
+
+![](lorikeets.png)
+
+---
+# Extracting the significant genes
+
+Just look pairwise for simplicity here.
+
+
+```r
+d &lt;- DGEList(counts = coty[,2:7], 
+  group = c(rep("S1", 3), rep("S2", 3)), 
+  genes = coty[,1])
+d &lt;- calcNormFactors(d)
+d &lt;- estimateCommonDisp(d)
+d &lt;- estimateTagwiseDisp(d)
+d &lt;- estimateTrendedDisp(d)
+de &lt;- exactTest(d, pair=c("S1", "S2"), dispersion = "tagwise")
+sig.tab &lt;- de$table
+sig.tab$genes &lt;- coty$ID
+sig.tab &lt;- sig.tab %&gt;% filter(PValue &lt; 0.01)
+```
+
+---
+
+
+
+```r
+sig.tab &lt;- merge(sig.tab, coty[,1:7], by.x="genes", by.y="ID")
+ggscatmat(sig.tab, columns=5:10, alpha=0.1)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-24-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+
+
+```r
+ggparcoord(sig.tab, columns=5:10, scale="globalminmax",
+           alphaLines=0.1)
+```
+
+&lt;img src="index_files/figure-html/unnamed-chunk-25-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+class: inverse middle 
+# Your turn
+
+- Test the first two stages of the leaf data. 
+- Plot the genes that have a p-value of less than 0.01 as a scatterplot matrix, and as parallel coordinate plot
+
+![](lorikeets.png)
+
+
+
+---
+class: inverse middle 
+# Your turn
+
+Make the porcupine plot for the two stages, just for rep 1 and rep 2, only the genes that have P-value less than 0.01
+
+![](lorikeets.png)
+
+
+
+---
+# Resources
+
+- [GGobi web site](http://www.ggobi.org), [ggobi book](http://www.ggobi.org/book)
+- Emerson et al (2013) The Generalized Pairs Plot, Journal of Computational and Graphical Statistics, 22:1, 79-91
+- Cook et al (2007) Exploring Gene Expression Data, Using Plots, Journal of Data Science, 5(2):151-182
+- [Antony Unwin, Graphical Data Analysis with R](https://www.crcpress.com/Graphical-Data-Analysis-with-R/Unwin/9781498715232)
+
+---
+# Share and share alike
+
+This work is licensed under the Creative Commons Attribution-Noncommercial 3.0 United States License. To view a copy of this license, visit http://creativecommons.org/licenses/by-nc/3.0/us/ or send a letter to Creative Commons, 171 Second Street, Suite 300, San Francisco, California, 94105, USA.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('showSlide', function (slide) {setTimeout(function() {window.dispatchEvent(new Event('resize'));}, 100)});</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
